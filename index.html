@@ -1,0 +1,5238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Binance WOTD Solver</title>
+
+<style>
+
+:root{
+  --bg:#f5f7fa;
+  --card:#fff;
+  --text:#111827;
+  --muted:#6b7280;
+  --line:#d1d5db;
+  --accent:#f0b90b;
+  --gray:#787c7e;
+  --yellow:#c9b458;
+  --green:#6aaa64;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font:15px system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+
+body.dark{
+  --bg:#0f1115;
+  --card:#181b21;
+  --text:#f5f5f5;
+  --muted:#a7adb8;
+  --line:#343944;
+}
+
+.wrap{
+  max-width:1050px;
+  margin:auto;
+  padding:24px;
+}
+
+.head{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  align-items:center;
+  margin-bottom:18px;
+}
+
+h1{
+  margin:0;
+  font-size:28px;
+}
+
+h3{
+  margin-top:0;
+}
+
+.brand{
+  color:var(--accent);
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:18px;
+  margin:14px 0;
+  box-shadow:0 5px 18px #00000009;
+}
+
+.row{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  align-items:center;
+}
+
+input,
+select,
+button{
+  font:inherit;
+  border-radius:10px;
+  border:1px solid var(--line);
+  padding:10px;
+  background:var(--card);
+  color:var(--text);
+}
+
+input{
+  flex:1;
+  min-width:220px;
+}
+
+button{
+  cursor:pointer;
+  user-select:none;
+}
+
+button:hover{
+  opacity:.9;
+}
+
+button:active{
+  transform:scale(.97);
+}
+
+button.primary{
+  background:#f0b90b;
+  color:#111;
+  border:0;
+  font-weight:700;
+}
+
+button.google{
+  background:#4285f4;
+  color:white;
+  border:0;
+  font-weight:700;
+}
+
+button.secondary{
+  background:var(--card);
+}
+
+.small{
+  font-size:12px;
+  color:var(--muted);
+  line-height:1.5;
+}
+
+.grid{
+  display:grid;
+  gap:7px;
+  justify-content:center;
+  margin:15px auto;
+}
+
+.tile{
+  width:54px;
+  height:54px;
+  border:2px solid var(--line);
+  display:grid;
+  place-items:center;
+  font-size:23px;
+  font-weight:800;
+  text-transform:uppercase;
+  border-radius:7px;
+  cursor:pointer;
+  transition:.12s;
+  user-select:none;
+}
+
+.tile:hover{
+  transform:scale(1.03);
+}
+
+.tile.filled{
+  border-color:#8d9298;
+}
+
+.tile.gray{
+  background:var(--gray);
+  border-color:var(--gray);
+  color:#fff;
+}
+
+.tile.yellow{
+  background:var(--yellow);
+  border-color:var(--yellow);
+  color:#fff;
+}
+
+.tile.green{
+  background:var(--green);
+  border-color:var(--green);
+  color:#fff;
+}
+
+
+/* =========================================================
+   ON-SCREEN KEYBOARD
+========================================================= */
+
+.keyboard{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  justify-content:center;
+  align-items:center;
+  max-width:760px;
+  margin:20px auto 0;
+}
+
+.keyboard-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  justify-content:center;
+}
+
+.key{
+  min-width:38px;
+  height:42px;
+  padding:8px 10px;
+  font-weight:700;
+  border-radius:7px;
+  border:1px solid var(--line);
+  background:var(--card);
+  color:var(--text);
+  cursor:pointer;
+  transition:.12s;
+}
+
+.key:hover{
+  transform:translateY(-1px);
+  opacity:.9;
+}
+
+.key:active{
+  transform:scale(.95);
+}
+
+.key.special{
+  min-width:70px;
+}
+
+.key.gray{
+  background:var(--gray);
+  color:white;
+  border-color:var(--gray);
+}
+
+.key.yellow{
+  background:var(--yellow);
+  color:white;
+  border-color:var(--yellow);
+}
+
+.key.green{
+  background:var(--green);
+  color:white;
+  border-color:var(--green);
+}
+
+
+/* =========================================================
+   RESULTS
+========================================================= */
+
+.results{
+  display:grid;
+  gap:8px;
+}
+
+.item{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  border:1px solid var(--line);
+  padding:10px;
+  border-radius:10px;
+}
+
+.word{
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.tag{
+  font-size:11px;
+  color:var(--muted);
+}
+
+.status{
+  margin-top:8px;
+  color:var(--muted);
+}
+
+.empty{
+  text-align:center;
+  padding:15px;
+  color:var(--muted);
+}
+
+.count{
+  margin:12px 0;
+  font-weight:700;
+}
+
+.notice{
+  padding:10px;
+  border-radius:10px;
+  background:#f0b90b18;
+  margin-top:10px;
+}
+
+.search-box{
+  background:#4285f412;
+  border:1px solid #4285f433;
+  border-radius:10px;
+  padding:12px;
+  margin-top:12px;
+  word-break:break-word;
+}
+
+.pattern{
+  font-family:monospace;
+  font-weight:bold;
+  letter-spacing:3px;
+}
+
+
+/* =========================================================
+   COPY BUTTON
+========================================================= */
+
+button.copy{
+  background:#111827;
+  color:#fff;
+  border:0;
+  font-weight:700;
+}
+
+body.dark button.copy{
+  background:#f5f5f5;
+  color:#111;
+}
+
+
+@media(max-width:600px){
+
+  .wrap{
+    padding:12px;
+  }
+
+  .head{
+    align-items:flex-start;
+  }
+
+  h1{
+    font-size:23px;
+  }
+
+  .tile{
+    width:43px;
+    height:43px;
+    font-size:19px;
+  }
+
+  .grid{
+    gap:5px;
+  }
+
+  .keyboard{
+    gap:5px;
+    margin-top:15px;
+  }
+
+  .keyboard-row{
+    gap:4px;
+  }
+
+  .key{
+    min-width:30px;
+    height:40px;
+    padding:7px 6px;
+    font-size:13px;
+  }
+
+  .key.special{
+    min-width:58px;
+  }
+
+  .item{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .item button{
+    width:100%;
+  }
+
+  input{
+    min-width:100%;
+  }
+
+  .search-actions{
+    width:100%;
+  }
+
+  .search-actions button,
+  .search-actions a{
+    flex:1;
+  }
+
+  .search-actions a button{
+    width:100%;
+  }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div class="wrap">
+
+
+<!-- =====================================================
+     HEADER
+===================================================== -->
+
+<div class="head">
+
+  <div>
+
+    <h1>
+      <span class="brand">Binance</span> WOTD Solver
+    </h1>
+
+    <div class="small">
+      Wordle clues + Binance theme + Google Search
+    </div>
+
+  </div>
+
+  <button id="dark">
+    🌙 Dark mode
+  </button>
+
+</div>
+
+
+<!-- =====================================================
+     THEME
+===================================================== -->
+
+<div class="card">
+
+  <h3>1. Binance WOTD Theme</h3>
+
+  <div class="row">
+
+    <input
+      id="theme"
+      placeholder="Example: Binance Stock Options"
+    >
+
+    <select id="len">
+
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5" selected>5</option>
+      <option value="6">6</option>
+      <option value="7">7</option>
+      <option value="8">8</option>
+      <option value="9">9</option>
+      <option value="10">10</option>
+
+    </select>
+
+    <button
+      class="primary"
+      id="filter"
+    >
+      Find Words
+    </button>
+
+  </div>
+
+  <div class="small">
+    Enter the current Binance WOTD theme.
+    The solver uses your color clues strictly and uses the theme
+    to rank relevant crypto/Binance words.
+  </div>
+
+  <div class="notice">
+
+    💡 For better results, use the exact Binance theme,
+    for example <b>Binance Stock Options</b>.
+
+  </div>
+
+</div>
+
+
+<!-- =====================================================
+     CLUE GRID
+===================================================== -->
+
+<div class="card">
+
+  <h3>2. Clue Grid</h3>
+
+  <div class="small">
+
+    Type your guess, then click each letter:
+
+    <b>gray → yellow → green → empty</b>
+
+  </div>
+
+  <div id="grid" class="grid"></div>
+
+
+  <!-- ON SCREEN KEYBOARD -->
+
+  <div id="keyboard" class="keyboard"></div>
+
+
+  <div
+    class="row"
+    style="justify-content:center;margin-top:15px"
+  >
+
+    <button id="clear">
+      🧹 Clear Row
+    </button>
+
+    <button id="next">
+      ➡️ Next Row
+    </button>
+
+    <button id="resetBoard">
+      🔄 Reset
+    </button>
+
+  </div>
+
+
+  <div
+    id="status"
+    class="status"
+  ></div>
+
+</div>
+
+
+<!-- =====================================================
+     GEMINI SEARCH
+===================================================== -->
+
+<div class="card">
+
+  <h3>3. Option: Gemini Search</h3>
+
+  <div class="small">
+
+    Searches are generated from your theme,
+    word length, known letters, yellow letters
+    and excluded letters.
+
+  </div>
+
+
+  <div
+    id="searchInfo"
+    class="search-box"
+  >
+    Search query will appear here.
+  </div>
+
+
+  <div
+    class="row search-actions"
+    style="margin-top:10px"
+  >
+
+    <!-- COPY QUERY -->
+
+    <button
+      class="copy"
+      id="copyQuery"
+      type="button"
+    >
+      📋 Copy Query
+    </button>
+
+
+    <!-- GEMINI -->
+
+    <a
+      href="https://gemini.google.com"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+
+      <button
+        class="google"
+        id="searchClues"
+        type="button"
+      >
+        🔎 Paste Query into Gemini
+      </button>
+
+    </a>
+     <a
+    href="https://chatgpt.com"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    <button
+      class="google"
+      id="searchChatGPT"
+      type="button"
+    >
+      🤖 Paste Query into ChatGPT
+    </button>
+  </a>
+
+  </div>
+
+</div>
+
+
+<!-- =====================================================
+     RESULTS
+===================================================== -->
+
+<div class="card">
+
+  <h3>4. Suggested Words</h3>
+
+  <div
+    id="resultCount"
+    class="count"
+  ></div>
+
+
+  <div
+    id="results"
+    class="results"
+  ></div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =========================================================
+   BINANCE / CRYPTO DICTIONARY
+========================================================= */
+
+const starter = `
+
+Change
+Chance
+Change
+Character
+Charge
+Check
+Child
+Choice
+Choose
+Church
+Citizen
+City
+Civil
+Claim
+Class
+Clear
+Close
+Coach
+Coast
+Coffee
+Cold
+Collection
+College
+Color
+Commercial
+Common
+Community
+Company
+Compare
+Computer
+Concern
+Condition
+Conference
+Congress
+Consider
+Consumer
+Contain
+Continue
+Control
+Cost
+Could
+Country
+Couple
+Course
+Court
+Cover
+Create
+Crime
+Cultural
+Culture
+Cup
+Current
+Customer
+Cut
+Dark
+Data
+Daughter
+Day
+Dead
+Deal
+Death
+Debate
+Decide
+Decision
+Deep
+Defense
+Degree
+Democrat
+Democratic
+Describe
+Design
+Despite
+Detail
+Determine
+Develop
+Development
+Die
+Difference
+Different
+Difficult
+Dinner
+Direction
+Director
+Discover
+Discuss
+Discussion
+Disease
+Do
+Doctor
+Dog
+Door
+Down
+Draw
+Dream
+Drive
+Drop
+Drug
+During
+Each
+Early
+East
+Easy
+Eat
+Economic
+Economy
+Edge
+Education
+Effect
+Effort
+Eight
+Either
+Election
+Else
+Employee
+End
+Energy
+Account
+Action
+Active
+Add
+Age
+Agency
+Agent
+Air
+All
+Also
+Always
+America
+Amount
+Analysis
+And
+Animal
+Another
+Answer
+Any
+Anyone
+Anything
+Appear
+Apple
+Area
+Argue
+Arm
+Art
+Article
+Artist
+As
+Ask
+At
+Attack
+Attention
+Attorney
+Audience
+Author
+Authority
+Available
+Avoid
+Away
+Baby
+Back
+Bad
+Bag
+Ball
+Bank
+Bar
+Base
+Be
+Beat
+Beautiful
+Because
+Become
+Bed
+Before
+Begin
+Behavior
+Behind
+Believe
+Benefit
+Best
+Better
+Between
+Beyond
+Big
+Bill
+Billion
+Bit
+Black
+Blood
+Blue
+Board
+Boat
+Body
+Book
+Born
+Both
+Box
+Boy
+Break
+Bring
+Brother
+Budget
+Build
+Building
+Business
+But
+Buy
+By
+Call
+Camera
+Campaign
+Can
+Cancer
+Candidate
+Capital
+Car
+Card
+Care
+PUT
+BUY
+ROI
+PAY 
+RISK
+CALL
+SPOT
+FUSE
+LEAD
+MOCK 
+HEDGE
+PRICE
+TRADE
+SHARE
+LIMIT
+ORDER
+ALERT 
+SETTLE
+EXPIRY
+OPTION
+STRIKE
+EQUITY
+TRADER
+RETURN
+UPDATE
+EXPERT 
+DISCUSS
+PERFORM
+BEARISH 
+CHATROOM
+ENGAGING
+CRITERIA
+STRATEGY
+FOLLOWER
+APP
+BID
+BTC
+EAR
+ETH
+FEE
+GAS
+KEY
+NFT
+PAY
+SEC
+WEB
+BOT
+DEX
+DAO
+CEX
+LED
+ICO
+IEO
+IDO
+AIR
+BULL
+CASH
+COIN
+USD
+EUR
+GBP
+JPY
+AUD
+CAD
+CHF
+CNY
+HKD
+NZD
+SGD
+SEK
+KRW
+INR
+BRL
+ZAR
+RUB
+SOL
+ADA
+XRP
+DOT
+AVAX
+MATIC
+LINK
+UNI
+ATOM
+LTC
+ETC
+BCH
+XLM
+ALGO
+NEAR
+FTM
+SAND
+MANA
+AXS
+THETA
+HBAR
+ICP
+VET
+FIL
+TRX
+EOS
+XTZ
+AAVE
+MKR
+SNX
+CRV
+COMP
+YFI
+ENJ
+BAT
+ZRX
+SUSHI
+CHZ
+HOT
+ZIL
+ONE
+IOST
+KSM
+SC
+DGB
+NANO
+ICX
+ONT
+DAI
+USDT
+USDC
+BUSD
+TUSD
+USDP
+FRAX
+LUSD
+MIM
+SUSD
+FEI
+GUSD
+USDX
+EURS
+EURT
+GBPT
+AUDT
+CADT
+CNHT
+JPYT
+BTCB
+WBTC
+RENBTC
+HBTC
+SBTC
+IBTC
+WETH
+RETH
+STETH
+CBETH
+WBNB
+WSOL
+WMATIC
+WAVAX
+WFTM
+WNEAR
+WONE
+WHT
+WHBAR
+KNC
+BAL
+BAND
+UMA
+OCEAN
+RLC
+NMR
+API3
+TRB
+DIA
+SBT
+POAP
+MET
+VRX
+ARX
+GEM
+BAGS
+APE
+PUN
+BAY
+MAY
+DOOD
+PUDG
+CLON
+MOON
+BIRD
+CATX
+DOGX
+FROG
+TOAD
+DUCK
+FISH
+SHRK
+WHAL
+CRAB
+LOBE
+SQUID
+OCTO
+CRYS
+GEMS
+MINI
+MEGA
+GIGA
+TERA
+PETA
+EXAS
+ZETA
+YOTA
+BYTE
+BITS
+CODE
+DATA
+NETS
+WEBZ
+APPS
+SITE
+HOST
+PING
+PONG
+API
+SDK
+URL
+HTTP
+HTTPS
+JSON
+XMLY
+HTML
+CSSX
+JSXX
+SQLX
+NOSQ
+MONG
+REDY
+FIRE
+AWSX
+GCPO
+AZUR
+DOCK
+KUBB
+LINO
+DIGI
+HERO
+VERC
+NETL
+GHUB
+GLAB
+BITB
+JIRA
+TRELL
+SLAK
+DISC
+TELE
+TWIT
+XWTR
+REDD
+YOUT
+TICK
+INST
+FACE
+LINK
+SNAP
+PINT
+WHATS
+SIGL
+VIBE
+WECH
+LINE
+SKYP
+TAX
+VAT
+GST
+BOV
+NET
+GRO
+SUM
+ADD
+SUB
+MUL
+DIV
+BAL
+CAP
+INV
+REC
+DUE
+TOP
+MAX
+MIN
+AVG
+MED
+MOD
+TOT
+ACT
+PLN
+BUD
+FOR
+REV
+EXP
+COS
+PRO
+LOS
+MAR
+YLD
+ROI
+APR
+APY
+FIX
+VAR
+SHR
+STK
+BND
+CUR
+FXS
+GLD
+AIM
+ALL
+ASK
+BAD
+BAG
+BAR
+BAT
+BAY
+BED
+BEG
+BET
+BIG
+BIN
+BIT
+BOY
+BOX
+BUS
+BUY
+CAN
+CAR
+CAT
+CUT
+DAY
+DOG
+DRY
+EAT
+END
+EYE
+FAR
+FAT
+FED
+FEW
+FLY
+FRY
+FUN
+GAP
+GOT
+GUN
+HAT
+HIT
+HOT
+HOW
+ICE
+INK
+INN
+ION
+IPS
+IRS
+ISS
+ITS
+IVS
+IXS
+JOB
+JOG
+JOY
+JUG
+JUT
+KEG
+KID
+KIN
+KIT
+LAB
+LAD
+LAG
+LAP
+LAW
+LAY
+LEG
+LET
+LID
+LIE
+LIP
+LIT
+LOG
+LOT
+LUG
+MAC
+MAD
+MAN
+MAP
+MAT
+MEN
+MID
+MIX
+MOB
+MOP
+MUD
+MUG
+NAB
+NAG
+NAP
+NEW
+NIL
+NIP
+NIT
+NOD
+NON
+NOR
+NOT
+NOW
+NUN
+NUT
+OAK
+OAR
+OAT
+ODD
+OFF
+OFT
+OIL
+OLD
+ONE
+OPT
+ORB
+ORE
+OUR
+OUT
+OWE
+OWL
+OWN
+PAD
+PAL
+PAN
+PAP
+PAR
+PAT
+PAW
+PEA
+PEG
+PEN
+PEP
+PER
+PET
+PEW
+PHI
+PIE
+PIG
+PIN
+PIP
+PIT
+PIX
+PLY
+POD
+POI
+POP
+POT
+PRY
+PUP
+PUS
+PYX
+QAT
+QUE
+RAD
+RAG
+RAH
+RAM
+RAN
+RAP
+RAT
+RAW
+RAY
+REB
+RED
+REF
+REG
+REM
+REP
+RES
+REV
+REX
+RIA
+RIB
+RID
+RIG
+RIM
+RIP
+ROB
+ROD
+ROE
+ROT
+ROW
+RUB
+RUE
+ASSET
+BEAR
+BULL
+CASH
+COIN
+COPY
+DATA
+DEFI
+HODL
+LOSS
+MINT
+NODE
+POOL
+SAFU
+SEED
+TIER
+USER
+WALLET
+WHALE
+BURN
+FORK
+HASH
+DEBT
+LOAN
+SWAP
+FARM
+YIELD
+VAULT
+STAK
+FUND
+GOLD
+BOND
+BANK
+CARD
+SHOP
+SITE
+CODE
+TEST
+META
+CHAT
+FLOW
+GRID
+BOOK
+READ
+SAVE
+FAST
+MOON
+DUMP
+PUMP
+LONG
+SHORT
+CALL
+PUTS
+BIDD
+ASKED
+GASX
+GWEI
+WEIY
+SATZ
+SATS
+BLOC
+CHAIN
+MINER
+POOLZ
+LIMIT
+BRID
+WRAP
+UNIS
+CAKE
+SUSI
+CURV
+BALA
+BANC
+INCH
+DYDX
+PERP
+GMXS
+SNXG
+MAKR
+COMPO
+YFII
+CREC
+BORR
+LEND
+YILD
+LOCK
+UNLK
+CLAI
+REST
+DROP
+FAUC
+MAIN
+SIDE
+LONE
+LAYR
+ROLL
+SHAR
+CONS
+POWF
+POSF
+WORK
+DELE
+VALI
+SLAS
+BLKS
+TIME
+NONC
+PUBL
+PRIV
+KEYP
+SIGN
+WALL
+HOTW
+COLD
+HARD
+SOFT
+PAPR
+MNEM
+RECO
+BACK
+EXCH
+CENT
+DECE
+PEER
+ORDR
+TRAD
+METAVERSE
+AVATAR
+LANDX
+PARCEL
+ESTATE
+BUILDG
+GAMING
+PLAYTO
+EARNIN
+ARCADE
+QUESTS
+ITEMSOT
+SKINSZ
+WEAPON
+ARMORS
+SHIELD
+POTION
+MANAPS
+HEALTH
+XPGAIN
+LEVELS
+RANKSZ
+LEADER
+BOARDS
+CLANSO
+GUILDS
+ALLIANC
+FACTION
+WARZON
+BATTLS
+ARENAS
+TOURNMT
+ESPORTS
+STREAMR
+VIEWER
+TUTORL
+GUIDES
+FAQXXX
+SUPPRT
+CODEZ
+SCRPT
+BYTES
+FILES
+FOLDR
+ROOTS
+PATHS
+HOSTS
+PORTZ
+DOMN
+SSLSZ
+CERTZ
+DNSXX
+PROXY
+ROUTK
+SWTCH
+HUBSX
+BRIDG
+FIREW
+PACKT
+ROUTD
+IPADD
+MACID
+TCPXX
+UDPXX
+PINGZ
+TRACN
+NETWK
+WIFIS
+BLUT
+AUDIT
+BANKX
+BILLZ
+BUDG
+CARDZ
+CASHZ
+CENTZ
+CHRG
+COUPN
+CRED
+DEBTZ
+DEPOZ
+DIMEZ
+DIVI
+DOLLR
+DRAFT
+EXCHZ
+EXPNZ
+FAIRZ
+FEESX
+FINZ
+FIRMZ
+FNDSZ
+FUNDZ
+GOLDZ
+GRANT
+GROSZ
+GUARN
+INCOM
+INVSX
+LEASZ
+LENDZ
+LOANZ
+LOSSZ
+MARGZ
+MONYN
+MORTG
+NETZ
+NOTEZ
+OFFRZ
+ABLE
+ACID
+EDGY
+EDIF
+EDIT
+EGGS
+ELSE
+EPIC
+EVEN
+EVER
+EXAM
+EXIT
+FACE
+FACT
+FAIR
+FALL
+FARM
+FAST
+FATE
+FEAR
+FEED
+FEEL
+FILE
+FILL
+FIND
+FINE
+FIRE
+FISH
+FIVE
+FLAT
+FLOW
+FOOD
+FOOT
+FORD
+FORM
+FOUR
+FREE
+FROM
+FUEL
+FULL
+GAIN
+GAME
+GATE
+GAVE
+GEAR
+GIFT
+GIRL
+GIVE
+GLAD
+GOAL
+GOLF
+GONE
+GOOD
+GOWN
+GRAB
+GRAY
+GREW
+GRID
+GRIM
+GRIN
+GRIP
+GROW
+GULF
+GULL
+GUMS
+GURU
+GUSH
+GUST
+HAIR
+HALF
+HALL
+HALT
+HAND
+HANG
+HARD
+HARE
+HARM
+HARP
+HASH
+HATE
+HAVE
+HAWK
+HEAD
+HEAL
+HEAP
+HEAR
+HEAT
+HECK
+HEED
+HEEL
+HEIR
+HELD
+HELP
+HERB
+HERD
+HERE
+HERO
+HERS
+HIED
+HIKED
+HILL
+HILT
+HIND
+HINT
+HIRE
+HISS
+HIVE
+HOAX
+HOBO
+HOCK
+HOLD
+HOLE
+HOLY
+HOME
+HONE
+HONK
+HOOD
+HOOF
+HOOK
+HOOP
+HOOT
+HOPE
+HOPS
+HORN
+HOSE
+HOST
+HOUR
+COVE
+HOWL
+HUCK
+HUFF
+HUGE
+HULL
+HUMP
+HUNG
+HUNT
+HURL
+HURT
+HUSH
+HUSK
+HYMN
+ICEDC
+ICON
+IDEA
+IDEM
+IDLE
+IDOL
+IFFY
+INCH
+ICONC
+IDIOT
+IDLES
+IDOLS
+IGLOO
+IMAGE
+IMBUE
+IMPEL
+IMPLY
+INANE
+INBOX
+INCUR
+INDEX
+INDIE
+INEPT
+INERT
+INFER
+INGOT
+INKY
+INLAID
+INLET
+INNER
+INPUT
+INTO
+IONIC
+IRATE
+IRMA
+IRON
+ISLE
+ITCH
+ITEM
+IVIED
+IVORY
+JABO
+JACK
+JADE
+JAIL
+JAMB
+JAMS
+JANE
+JAPAN
+JARS
+JAUNT
+JAWS
+JAZZ
+JEAN
+JEEP
+JEER
+JELL
+
+
+ALERT
+BLOCK
+CRYPTO
+CURVE
+DIVER
+DUMPZ
+ETHER
+FUNDS
+INDEX
+ISSUE
+LAUNCH
+LEDGER
+LISTING
+MARGIN
+MINING
+ORDER
+PRICE
+RADAR
+REWARD
+SMART
+STAKE
+TOKEN
+TRADE
+TRUST
+VAULT
+STABLE
+YIELD
+SWAPS
+PUMPS
+SHARK
+WHALE
+CHAIN
+BITCO
+ALTCO
+MEMCO
+DEPOS
+WITHD
+SHARE
+GROSS
+NETTO
+DEBIT
+CREDIT
+AUDIT
+PROOF
+CHECK
+TRACK
+STATS
+GRAPHS
+SHRIMP
+NOOBY
+PROSS
+EXPRT
+TRADR
+HODLR
+STAKR
+FARMR
+DEFIY
+NFTSY
+METAS
+WEB3S
+DAOSZ
+CEIOS
+FOUND
+BUIDL
+CODEZ
+SCRIP
+BYTES
+BITES
+BUGSY
+FIXES
+PATCH
+UPDAT
+VERSN
+TESTS
+PILOT
+STAGE
+PRODS
+RELEA
+BUILD
+WORKS
+TASKS
+PLANS
+GOALS
+VISIO
+MISSI
+VALUS
+ETHOS
+RULES
+LAWZS
+RIGHT
+LEGAL
+COURT
+JUDGE
+KYCSC
+AMLSW
+SAFUS
+SECU1
+RISKS
+HACKS
+EXPLO
+BUGBO
+WHITN
+BLACK
+GREYN
+CYBER
+THREA
+ATTAC
+PHISH
+SPOOF
+RANSOM
+MALWA
+TROJA
+BOTNE
+DDOSS
+ZEROX
+VULNE
+SECVS
+DEFEN
+FIREW
+PROXY
+VPNXX
+TORXX
+ANONY
+PRIVY
+CIPHE
+ENCRY
+DECRY
+HASHG
+SHA25
+RSAXX
+ECCXX
+ED255
+SIGNS
+VERIF
+PROOV
+ZEROK
+SNARK
+STORY
+LOREZ
+ARTIST
+CREATO
+DESIGN
+MODELS
+RIGGED
+TEXTURE
+SHADRS
+RENDER
+ENGINE
+UNREAL
+UNITYX
+GODOTS
+PHYSIC
+GRAVTY
+COLLID
+TRIGGR
+SCRIPT
+EVENTS
+LISTEN
+TRIGER
+ACTION
+MOTION
+CAPTUR
+ANIMAT
+VOICEO
+MUSICS
+AUDIOS
+EFFECT
+VISUAL
+IMPAKT
+SCENES
+CAMERA
+LIGHTS
+SHADOW
+REFLEC
+REFRAQ
+BLOOMS
+HDRIS
+SERVER
+CLIENT
+BROWSE
+COOKIS
+CACHEZ
+SESSN
+TOKENS
+AUTHS
+LOGINS
+SIGNUP
+PROFIL
+CONFIG
+ENVARS
+SCRPTS
+STYLES
+LAYOUT
+COMPNT
+MODULE
+IMPORT
+EXPORT
+FUNCTN
+METHOD
+OBJECT
+ARRAYS
+STRING
+NUMBER
+BOOLEA
+PROMIS
+ASYNCX
+AWAITX
+AUDITS
+BANKSX
+BILLSX
+BUDGTS
+CARDSX
+CASHXS
+CENTXS
+CHRGES
+COUPONS
+CREDSZ
+DEBTXS
+DEPOSX
+DIMEZT
+DIVIDS
+DOLLRS
+DRAFTS
+EXCHSX
+EXPNXS
+FAIRZS
+FEESXS
+FINANZ
+FIRMSX
+FNDSXS
+FUNDSX
+GOLDSX
+GRANTS
+GROSXS
+GUARNT
+INCOMS
+INVSXS
+ABOUT
+ABOVE
+ACTOR
+ACUTE
+ADMIT
+ADOPT
+ADULT
+AFTER
+AGAIN
+AGENT
+AGREE
+AHEAD
+ALARM
+ALBUM
+ALIKE
+ALIVE
+ALLOW
+ALONE
+ALONG
+ALTER
+AMONG
+ANGER
+ANGLE
+ANGRY
+APART
+APPLE
+APPLY
+ARENA
+ARGUE
+ARISE
+ARMOR
+ARRAY
+ARROW
+ASIDE
+AUDIO
+AVOID
+AWAKE
+BADGE
+BAGEL
+BAKER
+BALMY
+BANAL
+BANJO
+BARGE
+BARON
+BASAL
+BASIC
+BASIL
+BASIN
+BASIS
+BASTE
+BATCH
+BATHE
+BATON
+BATTY
+BAWDY
+BAYOU
+BEACH
+BEADY
+BEAST
+BEECH
+BEEFY
+BEGET
+BEGIN
+BEIGE
+BELCH
+BELLE
+BELLY
+BELOW
+BENCH
+BERET
+BERRY
+BERTH
+BESET
+BETEL
+BEVEL
+BEZEL
+BIBLE
+BIDET
+BIFFY
+BIGOT
+BIJOU
+BIKER
+BILGE
+BILLY
+BIMBO
+BINARY
+BINGO
+BIOME
+BIPED
+BIRCH
+BIRTH
+BISON
+BITCH
+BITER
+BITTY
+BLADE
+BLAME
+BLAND
+BLANK
+BLARE
+BLAST
+BLAZE
+BLEAK
+BLEED
+BLEEP
+BLEND
+BLESS
+BLIMP
+BLIND
+BLINK
+BLISS
+BLITZ
+BLOAT
+BLOKE
+BLOND
+BLOOD
+BLOOM
+BLOWN
+BLOWS
+BLUED
+BLUES
+BLUFF
+BLUNT
+BLURB
+BLURT
+BLUSH
+BOARD
+BOAST
+BOATY
+BOCCE
+BOCKY
+BODED
+BODEN
+BODGE
+BOFFO
+BOGEY
+BOGGY
+BOGIE
+BOISE
+BOLAS
+BOLES
+BOLLS
+BOLOS
+BOLTS
+BOMBE
+BOMBS
+BONDS
+BONED
+BONER
+BONES
+BONGO
+BONGS
+BONKS
+BONNY
+AIRDROP
+BITCOIN
+CRYPTO
+ESCROW
+FIATCO
+GASFEE
+LIQUID
+MARKET
+ORACLE
+PORTAL
+REWARD
+SECURE
+STABLE
+SYSTEM
+TICKER
+WALLET
+STAKING
+MININGS
+LEDGERS
+TOKENS
+TRADER
+ASSETS
+BOOSTER
+DEFICIT
+INVEST
+PROFIT
+SALARY
+BUDGET
+INCOME
+EXPENS
+SAVING
+CREDIT
+DEBITOR
+LENDER
+BORROW
+INTEREST
+CAPITAL
+VENTURE
+FUTURE
+OPTION
+FUTURES
+STRIKE
+HEDGES
+MARGINS
+LIQUIDI
+SOLVENCY
+BANKRUP
+MONEYS
+WEALTH
+ALTCOIN
+STABLEC
+MEMECOI
+SHITCOI
+UTILITY
+GOVERNZ
+REWARDZ
+FAUCETS
+TESTNET
+MAINNET
+SIDECHN
+LAYERON
+LAYERTW
+ROLLUPS
+SHARDIN
+CONSENS
+PROOFOV
+WORKETH
+DELEGAT
+VALIDAT
+SLASHIN
+BLOCKSZ
+TIMESTA
+NONCESO
+HASHING
+CRYPTOG
+PUBLICA
+PRIVATE
+KEYPAIR
+SIGNATU
+WALLETS
+HOTWALT
+COLDWAL
+HARDWAR
+SOFTWAR
+PAPERWA
+SEEDPHR
+MNEMONI
+RECOVER
+RESTORE
+BACKUPS
+EXCHANG
+CENTRAL
+DECENEX
+P2PEXCH
+ORDERBK
+MARKETS
+TRADING
+VOLUME
+LIQUIDY
+BIDPRIC
+ASKPRIC
+SPREADS
+SLIPPAG
+MARGINT
+LEVERAG
+LIQUIDN
+LONGPOS
+SHORTPO
+STOPLOS
+TAKEPRO
+LIMITOR
+MARKETO
+STOPORD
+OCOORDR
+TRAILING
+AVERAGE
+MOVINGS
+EXPONEN
+RSIINDI
+MACDIND
+BOLLING
+FIBONAC
+SUPPORT
+RESISTA
+TRENDLI
+CANDLEL
+OPENING
+CLOSING
+HIGHVAL
+LOWVALU
+VOLUMEZ
+MARKETP
+CAPITALZ
+CIRCULA
+NFTCOIN
+DIGITAL
+COLLECT
+ARTWORK
+CREATOR
+MINTERS
+OPENSEA
+RARIBLE
+LOOKSRA
+BLURNET
+MAGICED
+X2Y2NFTS
+SUPERRA
+KNOWNOR
+FOUNDATN
+MINTABLE
+RARINFT
+SOULBND
+TOKENGU
+METAVERZ
+SANDBOX
+MANALAND
+DECENTRA
+THESANDB
+OTHERDEE
+ACADIAWL
+GAIAXVR
+WORLDVA
+SOMNIUM
+SERVERS
+CLIENTS
+BROWSER
+COOKIES
+CACHING
+SESSION
+SECURITY
+AUTHORI
+AUTHENT
+PROFILE
+CONFIGS
+ENVIRON
+SCRIPTS
+STYLESZ
+LAYOUTS
+COMPONT
+MODULES
+IMPORTS
+EXPORTS
+FUNCTNS
+METHODS
+OBJECTS
+ARRAYZS
+STRINGS
+NUMBERS
+BOOLEAN
+PROMISE
+ASYNCHS
+AWAITSZ
+DATABASE
+AUDITNG
+BANKING
+BILLING
+BUDGETS
+CASHIER
+CENSORE
+CHARGES
+COUPONS
+CREDITS
+DEBITED
+DEBTORS
+DEPOSIT
+DIVIDND
+DOLLARS
+DRAFTEE
+EXCHANG
+EXPENSE
+FINANCE
+FIRMING
+FUNDINGZ
+GOLDENS
+GRANTED
+GROSSNG
+GUARANT
+INCOMES
+INVOICE
+INVESTS
+LEASING
+LENDING
+ABILITY
+ABSENT
+ACCESS
+ACROSS
+ACTION
+ACTIVE
+ACTUAL
+ADVICE
+ADVISE
+AFFAIR
+AFFECT
+AFFORD
+AGENCY
+ENDACT
+AIRPORT
+ALMOST
+ALONGS
+ALPHAS
+ALREADY
+ALTERS
+ALWAYS
+AMOUNT
+ANCIEN
+ANIMAL
+ANNUAL
+ANSWER
+ANYONE
+ANYWAY
+APPEAR
+AROUND
+ARRIVE
+ARTIST
+ASPECT
+ASSESS
+ASSIGN
+ASSIST
+ASSUME
+ATTACK
+ATTEND
+AUTHOR
+BATTLE
+BAUBLE
+BAZAAR
+BEACON
+BEAKER
+BECOME
+BEDECK
+BEDFET
+BEDPAN
+BEDRID
+BEEHIV
+BEFALL
+BEGETS
+BEGGAR
+BEGINS
+BEHALF
+BEHAVE
+BEHEST
+BEHIND
+BEHOLD
+BEHOOV
+BELATE
+BELIEF
+BELIZE
+BELLBO
+BELLOW
+BELONG
+BEMUSE
+BENCHY
+BENDER
+BENEAT
+BENEFY
+BENIGN
+BERTHS
+BESIEG
+BESTOW
+BETRAY
+BETTER
+BETTOR
+BEVELS
+BICYCL
+BIDDER
+BIDING
+BIENAL
+BIFOLD
+BIGAMY
+BIGGER
+BIKING
+BILBER
+BILGEZ
+BILIND
+BILLER
+BILLET
+BILLOW
+BINARY
+BINDER
+BIONIC
+BIOPSY
+BIPEDS
+BIRBER
+BIRTHS
+BISHOPS
+BISONT
+BISQUE
+BITERS
+BITING
+BITMAP
+BITTER
+BLACKS
+BLADES
+BLONDE
+BLOODY
+BLOOMS
+BLOUSE
+BLOWED
+BLOWER
+BLOWUP
+BLUEST
+BLUFFS
+BLUISH
+BLUNDR
+BLUNTS
+BLURBS
+BLURRY
+BLURTS
+BLUSHZ
+BOARDS
+BOASTS
+BOBCAT
+BODICE
+BODIED
+BODIES
+BODKIN
+BOFFOS
+BOGGLE
+BOGOTA
+BOILED
+BOILER
+BOISIE
+BOKCHO
+
+
+ADOPTION
+AIRDROP
+ANALYST
+BITCOIN
+CAPITAL
+DEPOSIT
+DIGITAL
+EARNING
+FINANCE
+GASFEEZ
+HOLDING
+NETWORK
+REVENUE
+TRADING
+WALLETS
+CONTRACT
+MAINNETS
+STAKING
+MININGS
+DEFIANT
+CRYPTOZ
+BLOCKIE
+CRYPTON
+BLOCKER
+FINTECH
+BANKING
+MONETARY
+FISCALS
+ECONOMY
+MARKETS
+CURRENV
+DOLLARS
+STABLES
+YIELDER
+FARMING
+POOLING
+SWAPPED
+BRIDGES
+WRAPPED
+UNISWAP
+PANCAKE
+SUSHISW
+BINANCE
+COINBASE
+KRAKENS
+BITSTAM
+TETHERZ
+USDCOIN
+ETHEREU
+RIPPLES
+CRYPTOZ
+BITCOINS
+ETHEREUM
+TETHEREI
+BINANCECO
+CARDANOS
+SOLANAS
+RIPPLECO
+DOGECOIN
+AVALANCH
+CHAINLIN
+POLYGONS
+POLKADOT
+UNISWAPS
+LITECOIN
+STELLARS
+MONEROS
+BITCOINC
+COINBASE
+KRAKENDO
+BLOCKFIO
+CELSIUSE
+FTXEXCHG
+BINANCEE
+METAMASK
+TRUSTWAL
+LEDGERHW
+TREZORHW
+PHANTOMW
+SOLLETIO
+PANCAKES
+SUSHISWA
+CURVEFES
+BALANCER
+AAVECOIN
+COMPOUND
+MAKERDAO
+SYNTHETI
+YEARNFIS
+BANCORLS
+MARKETER
+TRADINGS
+VOLUMEN
+LIQUIDOS
+ORDERBKS
+BIDPRICE
+ASKPRICE
+SPREADSZ
+SLIPPAGE
+MARGINGS
+LEVERAGE
+LIQUIDNS
+LONGPOST
+SHORTPOS
+STOPLOSS
+TAKEPROF
+LIMITORD
+MARKETOR
+STOPORDR
+OCOORDERS
+TRAILING
+AVERAGES
+MOVINGAV
+EXPONENS
+RSIINDIC
+MACDINDS
+BOLLINGR
+FIBONACC
+SUPPORTS
+RESISTAN
+TRENDLIN
+CANDLELS
+OPENINGS
+CLOSINGS
+HIGHVALS
+LOWVALUZ
+VOLUMEZO
+MARKETPR
+CAPITALI
+CIRCULAT
+NFTCOINS
+DIGITALS
+COLLECTS
+ARTWORKS
+CREATORS
+MINTEROZ
+MARKETZ
+OPENSEAS
+RARIBLES
+LOOKSRAS
+BLURNETS
+MAGICEDS
+SUPERARS
+KNOWNORS
+FOUNDATS
+MINTABLS
+SOULBNDS
+TOKENGUS
+METAVERSS
+SANDBOXS
+MANALNDS
+DECENTRS
+OTHERDEZ
+WORLDVAS
+SOMNIUMS
+VIRTUALS
+AUGMENTI
+MIXEDRES
+XRWORLDS
+SPATIALS
+SERVICED
+APISERVE
+BACKENDS
+FRONTEND
+FULLSTAC
+DATABASE
+NOSQLDBS
+RELATION
+SQLTABL
+QUERINGS
+MONGODBZ
+POSTGRES
+MYSQLDBS
+REDISDBZ
+FIREBASE
+AWSSERVS
+GCPSERVS
+AZURESRV
+DOCKERS
+KUBERNET
+AUDITORS
+BANKINGS
+BILLINGS
+BUDGETRY
+CASHIERS
+CHARGERS
+COUPONER
+CREDITOR
+DEBITORS
+DEPOSITR
+DIVIDEND
+DOLLARRS
+DRAFTERS
+EXCHANGS
+EXPENSES
+FINANCER
+FIRMSAVE
+FUNDINGS
+GRANTORS
+GUARANTS
+INCOMERS
+INVOICER
+INVESTOR
+LEASINGS
+LENDINGS
+LIQUIDTS
+MORTGAGE
+PAYMENTS
+RECEIPTS
+REVENUES
+ABSOLUT
+ACADEMIC
+ACCEPTED
+ACCIDENT
+ACCOUNTS
+ACHIEVE
+ACQUIRE
+ACTIVITY
+ACTUALLY
+ADDITION
+ADEQUATE
+ADMISSION
+ADVANCED
+ADVENTUR
+ADVERTISE
+ADVISORY
+AFFECTED
+AIRLINES
+AIRPLANE
+ALCOHOLY
+ALLIANCE
+ALTERING
+ALTHOUGH
+ALUMINUM
+AMBITOIN
+AMAZINGS
+ANALYSIS
+ANALYSTS
+ANNOUNCED
+ANNUALYS
+BAGGAGE
+BALANCZ
+BALDURZ
+BALLADE
+BALLAST
+BALLOON
+BALLOTS
+BANANAS
+BANDAGE
+BANDITS
+BANGLED
+BANKERS
+BANQUET
+BANTAMS
+BARBERS
+BARGAIN
+BARKING
+BARRELS
+BARRIER
+BARTERS
+BASHFUL
+BASINNG
+BASKETS
+BASTARD
+BATTERY
+BATTLEZ
+BAZAARS
+BEACHES
+BEACONS
+BEADLES
+BABELIC
+BABESYS
+BABOONS
+BACKAGE
+BACKING
+BACKOUT
+BACTERY
+BADNESS
+BAFFLED
+BAFFLER
+BAGUETT
+BAILABLE
+BAILIFT
+BAILOUT
+BAKERLY
+BAKINGZ
+BALANCE
+BALCONY
+BALDING
+BALLADE
+BALLAST
+BALLING
+BAMBOOZ
+BANALIZ
+BANDING
+BANDITS
+BANGING
+BANGLAD
+BANISHD
+BANJOSZ
+CABARET
+CABBAGE
+CABINET
+CABLED
+CABLES
+CABLING
+CABOOSE
+CACHING
+CADENCE
+CADENZA
+CADMIUM
+CAESARS
+CAFTANS
+CAGIEST
+CAIMANS
+CAJOLED
+CAJOLER
+CAKESYS
+CALALOU
+CALAMUS
+CALCIUM
+CALCULI
+CALDRON
+CALENDS
+CALFSIN
+CALIBER
+CALICES
+CALIPHS
+ALGORITHM
+BLOCKCHAIN
+COLLATERAL
+COMMUNITY
+DECENTRAL
+DIVIDEND
+DIVERSE
+ECONOMICS
+ETHEREUM
+LIQUIDITY
+MAINNETS
+PORTFOLIO
+SECURITY
+TRADEROS
+CONTRACTS
+STAKINGS
+MININGOS
+VALIDATR
+GOVERNOR
+PROPOSAL
+VOTINGOS
+EXCHANGES
+BROKERER
+FINANCIZ
+INVESTOR
+CAPITALZ
+VENTURES
+STARTUPS
+BUSINESS
+MERCHANTS
+COMMERCE
+RETAILER
+WHOLESALE
+INVOICED
+PAYMENTS
+TRANSFER
+CHECKOUT
+CURRENCY
+BANKINGS
+FINTECHS
+ANALYTIX
+STATISTI
+REPORTSO
+DASHBOAR
+DATABASE
+FRONTEND
+BACKENDS
+FULLSTAC
+SOFTWARE
+DEVELOPR
+CRYPTOCURR
+CENTRALIZ
+PEERTOPEE
+DISTRIBUT
+IMMUTABL
+TRANSACTI
+CONFIRMAT
+BLOCKTIMS
+GASLIMIT
+GASPRICED
+BASEFEES
+PRIORITYS
+MAXFEESPS
+SMARTCONT
+EXECUTABL
+SELFEXECU
+AUTOMATIN
+PROGRAMMA
+ORACLENET
+DATAFEEDZ
+CHAINLINK
+BANDPROT
+API3NODES
+CROSSCHAI
+INTEROPER
+BRIDGINGZ
+WRAPPEDTK
+LOCKEDVAL
+MARKETING
+TRADERSOK
+VOLUMETR
+LIQUIDATI
+ORDERBOOK
+BIDDINGS
+ASKINGSYS
+SPREADING
+SLIPPAGED
+MARGINTRD
+LEVERAGED
+LIQUIDATE
+LONGSIDES
+SHORTSIDE
+STOPLOSES
+TAKEPROFT
+LIMITORDS
+MARKETORS
+STOPORDERS
+OCOORDERS
+TRAILINGS
+AVERAGING
+MOVINGAVGZ
+EXPONENZL
+RSIINDCTO
+MACDINDRS
+BOLLINGER
+FIBONACCI
+SUPPORTED
+RESISTING
+TRENDLINE
+CANDLESTK
+OPENINGOS
+CLOSINGOS
+HIGHVALUS
+LOWVALUES
+VOLUMEZON
+MARKETPNT
+CAPITALZS
+CIRCULATS
+NFTCOINZ
+DIGITALSS
+COLLECTOR
+ARTWORKER
+CREATORZ
+MINTERZOS
+OPENSEAZS
+RARIBLZS
+LOOKSRAT
+BLURNETZ
+MAGICEDZ
+SUPERARZ
+KNOWNORZ
+FOUNDATZ
+MINTABLZ
+SOULBNDZ
+TOKENGUZ
+METAVERSZ
+SANDBOXZ
+MANALNDZ
+DECENTRXZ
+OTHERDEZ
+WORLDVAZ
+SOMNIUMZ
+VIRTUALSZ
+AUGMENTIZ
+MIXEDREZ
+XRWORLDZ
+SPATIALSZ
+MICROSER
+SERVERLE
+CLOUDWOM
+DEVOPSYS
+CI_CDPI
+AUTOMATE
+CONTAINR
+ORCHESTR
+LOADBALN
+MONITORZ
+LOGGINGZ
+METRICSO
+TRACINGZ
+ALERINGS
+INCIDENT
+DISASTER
+BACKUPING
+RECOVERY
+SCALABIL
+PERFORMAN
+AUDITINGZ
+BANKINGZZ
+BILLINGSS
+BUDGETING
+CASHIERSZ
+CHARGINGZ
+COUPONING
+CREDITORS
+DEBITORZ
+DEPOSITOR
+DIVIDENDS
+DOLLARSZ
+DRAFTINGS
+EXCHANGER
+EXPENSIV
+FINANCIAL
+FIRMSZON
+FUNDAMENT
+GRANTEEZ
+GUARANTEV
+INCOMINGS
+INVOICING
+INVESTORS
+LEASINGOS
+LENDINGOS
+MORTGAGER
+PAYMENTER
+RECEIPTER
+REVENUEZO
+ABSOLUTE
+ABSTRACT
+ACADEMICS
+ACCELERAT
+ACCENTED
+ACCEPTING
+ACCIDENTI
+ACCLAIMED
+ACCOMMOD
+ACCOMPANY
+ACCOMPLSH
+ACCORDING
+ACCOUNTED
+ACCRUINGS
+ACCURATES
+ACCUSINGS
+ACCUSTOMD
+ACHIEvers
+ACIDITIES
+ACKNOWLGE
+ACQUIRING
+ACQUISITN
+ACROBATIC
+ACTIVISTS
+ACTIVATED
+ACTUARIES
+ACUITYSZ
+ADAPTIVES
+ADDITIVES
+ADEQUACYS
+BACKBONE
+BACKDROP
+BACKFIER
+BACKFIRE
+BACKHAND
+BACKLASH
+BACKLOGS
+BACKPACK
+BACKREST
+BACKWARD
+BACTERIA
+BADINAGE
+BADMINTN
+BAGPIPES
+BAILMENT
+BAILOUTS
+BAKERIES
+BALANCER
+BALANCED
+BALCONYS
+BALDNESS
+BALLGAME
+BALLIONS
+BALLOTED
+BALSAMIC
+BAMBOOSZ
+BANALIST
+BANDAGES
+BANDLETS
+BANDSMAN
+CABARETS
+CABBAGES
+CABINMAN
+CABLINGZ
+CABOOSES
+CABRIOLET
+CACHALOT
+CACHINGS
+CACHOTTE
+CADASTRE
+CADAVERS
+CADDISYS
+CADDINGS
+CADENZAS
+CADETISM
+CADMIUMS
+CAESARNS
+CAFEETIA
+CAFTANSZ
+CAGINESS
+CAJOLEYS
+CAJOLERS
+CAJOLERY
+CAKEWALK
+CALABASH
+CALAMITY
+CALASHES
+CALCIUMS
+CALCULUS
+CALDRONS
+CALCULAT
+CALENDAR
+CALIBRAT
+CALIFORC
+CALLIGRA
+CALLIOPE
+CALORIFY
+CALUMNYZ
+CALVARIA
+CALVINIS
+CALYPSOS
+CAMAKESS
+CAMBRICS
+CAMENBER
+CAMERMAN
+CAMISOLE
+CAMOUFLG
+CAMPAIGN
+CAMPANIL
+CAMPFOLL
+CAMPHORS
+CAMPINGS
+CAMPUSYS
+CAMSHAFTS
+CANALIFY
+CANAPESS
+CANARDIN
+CANARIES
+CANCELED
+CANCERUS
+SAFU
+HODL
+DEFI
+BURN
+FORK
+HASH
+MINT
+NODE
+POOL
+SEED
+TIER
+SWAP
+FARM
+YIELD
+VAULT
+STAK
+FUND
+GOLD
+BOND
+DEXS
+ALERT
+BLOCK
+CRYPTO
+CURVE
+DIVER
+ETHER
+FUNDS
+INDEX
+ISSUE
+LAUNCH
+LEDGER
+LISTING
+MARGIN
+MINING
+ORDER
+PRICD
+RADAR
+REWARD
+SMART
+STAKE
+TOKEN
+TRADE
+TRUST
+VAULT
+STABLE
+AIRDROP
+BITCOIN
+CRYPTO
+ESCROW
+FIATCO
+GASFEE
+LIQUID
+MARKET
+ORACLE
+PORTAL
+REWARD
+SECURE
+STABLE
+SYSTEM
+TICKER
+WALLET
+STAKING
+TRADER
+ASSETS
+BOOSTER
+ADOPTION
+AIRDROP
+ANALYST
+BITCOIN
+CAPITAL
+DEPOSIT
+DIGITAL
+EARNING
+FINANCE
+HOLDING
+NETWORK
+REVENUE
+TRADING
+WALLETS
+CONTRACT
+MAINNET
+STAKING
+FINTECH
+BANKING
+MONETARY
+ALGORITHM
+BLOCKCHAIN
+COLLATERAL
+COMMUNITY
+DECENTRAL
+DIVIDEND
+DIVERSE
+ECONOMICS
+ETHEREUM
+LIQUIDITY
+MAINNETS
+PORTFOLIO
+SECURITY
+CONTRACTS
+STAKINGS
+VALIDATR
+GOVERNOR
+PROPOSAL
+EXCHANGES
+FINANCIAL
+about
+above
+access
+account
+action
+active
+address
+agent
+alert
+alpha
+amount
+asset
+audit
+backup
+balance
+basic
+bitcoin
+block
+blockchain
+bonus
+bridge
+browser
+build
+buyer
+capital
+cash
+chain
+charge
+chart
+claim
+cloud
+coin
+community
+confirm
+connect
+contract
+convert
+copy
+crypto
+custody
+data
+defi
+deposit
+digital
+earn
+economy
+education
+enable
+exchange
+explorer
+feature
+fee
+fiat
+finance
+future
+futures
+game
+gas
+global
+governance
+green
+grid
+guide
+hash
+holder
+identity
+index
+information
+innovation
+instant
+insurance
+interest
+invest
+launch
+ledger
+liquidity
+login
+market
+margin
+mining
+mobile
+network
+node
+offer
+order
+options
+oracle
+payment
+peer
+platform
+portfolio
+price
+profit
+protect
+protocol
+public
+purchase
+rally
+receive
+reward
+risk
+security
+send
+service
+settle
+smart
+spot
+stable
+staking
+support
+swap
+token
+tokens
+trade
+trading
+transaction
+trust
+utility
+verify
+wallet
+web3
+withdraw
+yield
+calls
+puts
+strike
+premium
+expiry
+expires
+volume
+leverage
+liquid
+liquidation
+position
+positions
+funding
+funds
+option
+stock
+stocks
+shares
+share
+bull
+bear
+trend
+markets
+pricing
+value
+values
+growth
+launches
+earning
+rewards
+
+`;
+
+
+let dict =
+  normalizeDictionary(starter);
+
+
+const ROWS = 6;
+
+let L = 5;
+
+let current = 0;
+
+let board = [];
+
+
+/* =========================================================
+   HELPER
+========================================================= */
+
+const $ =
+  id => document.getElementById(id);
+
+
+function normalizeDictionary(text){
+
+  return [
+
+    ...new Set(
+
+      String(text)
+        .toLowerCase()
+        .split(/[\s,;]+/)
+        .map(
+          word =>
+            word
+              .trim()
+              .replace(
+                /[^a-z]/g,
+                ''
+              )
+        )
+        .filter(
+          word =>
+            /^[a-z]+$/.test(word)
+        )
+
+    )
+
+  ];
+
+}
+
+
+/* =========================================================
+   CREATE BOARD
+========================================================= */
+
+function createBoard(){
+
+  L =
+    Number(
+      $('len').value
+    );
+
+  current = 0;
+
+
+  board =
+    Array.from(
+      {
+        length:ROWS
+      },
+      () =>
+        Array.from(
+          {
+            length:L
+          },
+          () => ({
+            ch:'',
+            s:''
+          })
+        )
+    );
+
+
+  render();
+
+  renderKeyboard();
+
+  runFilter();
+
+  updateSearchInfo();
+
+}
+
+
+/* =========================================================
+   RENDER BOARD
+========================================================= */
+
+function render(){
+
+  const grid =
+    $('grid');
+
+
+  grid.style.gridTemplateColumns =
+    `repeat(${L},54px)`;
+
+
+  grid.innerHTML = '';
+
+
+  board.forEach(
+    (row,rowIndex) => {
+
+      row.forEach(
+        (tile,colIndex) => {
+
+          const div =
+            document.createElement(
+              'div'
+            );
+
+
+          div.className =
+            'tile ' +
+            (tile.s || '') +
+            (
+              tile.ch
+                ? ' filled'
+                : ''
+            );
+
+
+          div.textContent =
+            tile.ch.toUpperCase();
+
+
+          div.setAttribute(
+            'aria-label',
+            `Row ${rowIndex + 1}, letter ${colIndex + 1}`
+          );
+
+
+          div.onclick =
+            () => {
+
+              if(
+                rowIndex !== current ||
+                !tile.ch
+              ){
+
+                return;
+
+              }
+
+
+              cycleTile(
+                rowIndex,
+                colIndex
+              );
+
+            };
+
+
+          grid.appendChild(
+            div
+          );
+
+        }
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   CYCLE TILE
+========================================================= */
+
+function cycleTile(row,col){
+
+  const tile =
+    board[row][col];
+
+
+  if(!tile.ch){
+
+    return;
+
+  }
+
+
+  if(tile.s === ''){
+
+    tile.s = 'gray';
+
+  }
+
+  else if(tile.s === 'gray'){
+
+    tile.s = 'yellow';
+
+  }
+
+  else if(tile.s === 'yellow'){
+
+    tile.s = 'green';
+
+  }
+
+  else{
+
+    tile.s = '';
+
+  }
+
+
+  render();
+
+  renderKeyboard();
+
+  runFilter();
+
+  updateSearchInfo();
+
+}
+
+
+/* =========================================================
+   TYPE LETTER
+========================================================= */
+
+function type(ch){
+
+  ch =
+    String(ch).toLowerCase();
+
+
+  if(
+    !/^[a-z]$/.test(ch)
+  ){
+
+    return;
+
+  }
+
+
+  const row =
+    board[current];
+
+
+  const index =
+    row.findIndex(
+      tile =>
+        tile.ch === ''
+    );
+
+
+  if(index === -1){
+
+    return;
+
+  }
+
+
+  row[index].ch = ch;
+
+  row[index].s = '';
+
+
+  render();
+
+  renderKeyboard();
+
+  runFilter();
+
+  updateSearchInfo();
+
+}
+
+
+/* =========================================================
+   BACKSPACE
+========================================================= */
+
+function back(){
+
+  const row =
+    board[current];
+
+
+  for(
+    let i=L-1;
+    i>=0;
+    i--
+  ){
+
+    if(row[i].ch){
+
+      row[i].ch = '';
+
+      row[i].s = '';
+
+      break;
+
+    }
+
+  }
+
+
+  render();
+
+  renderKeyboard();
+
+  runFilter();
+
+  updateSearchInfo();
+
+}
+
+
+/* =========================================================
+   CLEAR CURRENT ROW
+========================================================= */
+
+function clearCurrentRow(){
+
+  board[current] =
+    Array.from(
+      {
+        length:L
+      },
+      () => ({
+        ch:'',
+        s:''
+      })
+    );
+
+
+  render();
+
+  renderKeyboard();
+
+  runFilter();
+
+  updateSearchInfo();
+
+}
+
+
+/* =========================================================
+   NEXT ROW
+========================================================= */
+
+function nextRow(){
+
+  const hasLetters =
+    board[current]
+      .some(
+        tile =>
+          tile.ch
+      );
+
+
+  if(!hasLetters){
+
+    $('status').textContent =
+      'Enter a guess first.';
+
+    return;
+
+  }
+
+
+  if(current < ROWS - 1){
+
+    current++;
+
+    render();
+
+    renderKeyboard();
+
+    $('status').textContent =
+      `Now entering row ${current + 1}.`;
+
+  }
+
+}
+
+
+/* =========================================================
+   WORDLE SCORE
+========================================================= */
+
+function scoreGuess(
+  answer,
+  guess
+){
+
+  const result =
+    Array(L).fill('gray');
+
+
+  const remaining = {};
+
+
+  /*
+    GREEN
+  */
+
+  for(
+    let i=0;
+    i<L;
+    i++
+  ){
+
+    if(
+      answer[i] === guess[i]
+    ){
+
+      result[i] =
+        'green';
+
+    }
+
+  }
+
+
+  /*
+    Remaining letters
+  */
+
+  for(
+    let i=0;
+    i<L;
+    i++
+  ){
+
+    if(
+      result[i] === 'green'
+    ){
+
+      continue;
+
+    }
+
+
+    const letter =
+      answer[i];
+
+
+    remaining[letter] =
+      (
+        remaining[letter] || 0
+      ) + 1;
+
+  }
+
+
+  /*
+    YELLOW
+  */
+
+  for(
+    let i=0;
+    i<L;
+    i++
+  ){
+
+    if(
+      result[i] === 'green'
+    ){
+
+      continue;
+
+    }
+
+
+    const letter =
+      guess[i];
+
+
+    if(
+      remaining[letter] > 0
+    ){
+
+      result[i] =
+        'yellow';
+
+      remaining[letter]--;
+
+    }
+
+  }
+
+
+  return result;
+
+}
+
+
+/* =========================================================
+   MATCH ROW
+========================================================= */
+
+function matchesRow(
+  word,
+  row
+){
+
+  const guess =
+    row
+      .map(
+        tile =>
+          tile.ch
+      )
+      .join('');
+
+
+  /*
+    Empty row = no restriction
+  */
+
+  if(
+    !guess.length
+  ){
+
+    return true;
+
+  }
+
+
+  /*
+    Partial row:
+    do not eliminate candidates until
+    the entire guess is entered.
+  */
+
+  if(
+    guess.length !== L
+  ){
+
+    return true;
+
+  }
+
+
+  /*
+    All colors must be selected.
+  */
+
+  if(
+    row.some(
+      tile =>
+        !tile.s
+    )
+  ){
+
+    return true;
+
+  }
+
+
+  const expected =
+    row.map(
+      tile =>
+        tile.s
+    );
+
+
+  const actual =
+    scoreGuess(
+      word,
+      guess
+    );
+
+
+  return (
+    actual.join(',') ===
+    expected.join(',')
+  );
+
+}
+
+
+/* =========================================================
+   MATCH ALL ROWS
+========================================================= */
+
+function matches(word){
+
+  for(
+    let i=0;
+    i<ROWS;
+    i++
+  ){
+
+    if(
+      !matchesRow(
+        word,
+        board[i]
+      )
+    ){
+
+      return false;
+
+    }
+
+  }
+
+
+  return true;
+
+}
+
+
+/* =========================================================
+   THEME SCORE
+========================================================= */
+
+function localScore(
+  word,
+  terms
+){
+
+  let score = 0;
+
+
+  /*
+    Unique letters
+  */
+
+  score +=
+    new Set(word).size *
+    0.5;
+
+
+  for(
+    const term of terms
+  ){
+
+    if(
+      word === term
+    ){
+
+      score += 100;
+
+    }
+
+
+    if(
+      term.length >= 3 &&
+      word.includes(term)
+    ){
+
+      score += 30;
+
+    }
+
+
+    if(
+      term.length >= 3
+    ){
+
+      const shared =
+        word
+          .split('')
+          .filter(
+            char =>
+              term.includes(char)
+          )
+          .length;
+
+
+      score +=
+        shared * 1.5;
+
+    }
+
+  }
+
+
+  return score;
+
+}
+
+
+/* =========================================================
+   FILTER
+========================================================= */
+
+function runFilter(){
+
+  const theme =
+    $('theme')
+      .value
+      .toLowerCase()
+      .trim();
+
+
+  const terms =
+    theme
+      .split(
+        /[^a-z0-9]+/
+      )
+      .filter(
+        term =>
+          term.length > 1
+      );
+
+
+  let words =
+    [
+
+      ...new Set(
+
+        dict
+
+          .map(
+            word =>
+              word
+                .toLowerCase()
+                .replace(
+                  /[^a-z]/g,
+                  ''
+                )
+          )
+
+          .filter(
+            word =>
+              word.length === L
+          )
+
+          .filter(
+            word =>
+              matches(word)
+          )
+
+      )
+
+    ];
+
+
+  /*
+    Theme ranking
+  */
+
+  words.sort(
+    (a,b) =>
+      localScore(
+        b,
+        terms
+      )
+      -
+      localScore(
+        a,
+        terms
+      )
+  );
+
+
+  renderResults(
+    words.slice(0,100)
+  );
+
+
+  $('resultCount').textContent =
+    `${words.length} matching word${
+      words.length === 1
+        ? ''
+        : 's'
+    } found.`;
+
+
+  $('status').textContent =
+    words.length
+      ? `${words.length} matching words found.`
+      : 'No local matches. Use Gemini Search with the clues below.';
+
+}
+
+
+/* =========================================================
+   CLUE DATA
+========================================================= */
+
+function getClueData(){
+
+  const fixed = {};
+
+  const yellow =
+    new Set();
+
+  const gray =
+    new Set();
+
+
+  board.forEach(
+    row => {
+
+      row.forEach(
+        (tile,index) => {
+
+          if(!tile.ch){
+
+            return;
+
+          }
+
+
+          if(tile.s === 'green'){
+
+            fixed[index] =
+              tile.ch;
+
+          }
+
+          else if(
+            tile.s === 'yellow'
+          ){
+
+            yellow.add(
+              tile.ch
+            );
+
+          }
+
+          else if(
+            tile.s === 'gray'
+          ){
+
+            gray.add(
+              tile.ch
+            );
+
+          }
+
+        }
+
+      );
+
+    }
+
+  );
+
+
+  /*
+    A letter cannot be excluded if
+    it is known to exist elsewhere.
+  */
+
+  Object.values(fixed)
+    .forEach(
+      letter =>
+        gray.delete(letter)
+    );
+
+
+  yellow.forEach(
+    letter =>
+      gray.delete(letter)
+  );
+
+
+  return {
+    fixed,
+    yellow,
+    gray
+  };
+
+}
+
+
+/* =========================================================
+   PATTERN
+========================================================= */
+
+function getPattern(){
+
+  const data =
+    getClueData();
+
+
+  let pattern = '';
+
+
+  for(
+    let i=0;
+    i<L;
+    i++
+  ){
+
+    pattern +=
+      data.fixed[i]
+        ? data.fixed[i].toUpperCase()
+        : '_';
+
+  }
+
+
+  return pattern;
+
+}
+
+
+/* =========================================================
+   GOOGLE QUERY BUILDER
+========================================================= */
+
+function buildGoogleQuery(
+  type='all'
+){
+
+  const theme =
+    $('theme')
+      .value
+      .trim();
+
+
+  const data =
+    getClueData();
+
+
+  const pattern =
+    getPattern();
+
+
+  /*
+    Exact WOTD
+  */
+
+  if(
+    type === 'exact'
+  ){
+
+    return [
+
+      'site:binance.com',
+
+      '"Word of the Day"',
+
+      theme
+        ? `"${theme}"`
+        : '',
+
+      'WOTD'
+
+    ]
+      .filter(Boolean)
+      .join(' ');
+
+  }
+
+
+  /*
+    Pattern
+  */
+
+  if(
+    type === 'pattern'
+  ){
+
+    return [
+
+      'site:binance.com',
+
+      '"Word of the Day"',
+
+      theme
+        ? `"${theme}"`
+        : '',
+
+      `"${pattern}"`,
+
+      `${L} letter word`
+
+    ]
+      .filter(Boolean)
+      .join(' ');
+
+  }
+
+
+  /*
+    Full clues
+  */
+
+  const yellow =
+    [
+      ...data.yellow
+    ].join(' ');
+
+
+  const excluded =
+    [
+      ...data.gray
+    ].join(' ');
+
+
+  const fixed =
+    Object.entries(
+      data.fixed
+    )
+    .map(
+      ([position,letter]) =>
+        `"position ${Number(position)+1} ${letter}"`
+    )
+    .join(' ');
+
+
+  return [
+
+    'site:binance.com',
+
+    '"Word of the Day"',
+
+    theme
+      ? `"${theme}"`
+      : '',
+
+    `"${pattern}"`,
+
+    `${L} letter`,
+
+    yellow
+      ? `"${yellow}"`
+      : '',
+
+    fixed,
+
+    excluded
+      ? `-${[...data.gray].join(' -')}`
+      : ''
+
+  ]
+    .filter(Boolean)
+    .join(' ');
+
+}
+
+
+/* =========================================================
+   SEARCH INFO
+========================================================= */
+
+function updateSearchInfo(){
+
+  const query =
+    buildGoogleQuery(
+      'all'
+    );
+
+
+  $('searchInfo').innerHTML = `
+
+    <div class="small">
+      Generated Google query:
+    </div>
+
+    <div style="margin-top:6px">
+      <b>
+        ${escapeHTML(query)}
+      </b>
+    </div>
+
+    <div
+      class="small"
+      style="margin-top:8px"
+    >
+
+      Pattern:
+
+      <span class="pattern">
+        ${escapeHTML(getPattern())}
+      </span>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =========================================================
+   COPY QUERY
+========================================================= */
+
+$('copyQuery').onclick =
+  async () => {
+
+    const query =
+      buildGoogleQuery('all');
+
+
+    const button =
+      $('copyQuery');
+
+
+    try{
+
+      /*
+        Modern Clipboard API
+      */
+
+      if(
+        navigator.clipboard &&
+        window.isSecureContext
+      ){
+
+        await navigator.clipboard.writeText(
+          query
+        );
+
+      }
+
+      else{
+
+        /*
+          Fallback for local HTML files
+          and browsers where Clipboard API
+          is unavailable.
+        */
+
+        const textarea =
+          document.createElement(
+            'textarea'
+          );
+
+        textarea.value =
+          query;
+
+        textarea.style.position =
+          'fixed';
+
+        textarea.style.left =
+          '-9999px';
+
+        textarea.style.top =
+          '0';
+
+        document.body.appendChild(
+          textarea
+        );
+
+        textarea.focus();
+
+        textarea.select();
+
+        textarea.setSelectionRange(
+          0,
+          textarea.value.length
+        );
+
+        const copied =
+          document.execCommand(
+            'copy'
+          );
+
+        textarea.remove();
+
+
+        if(!copied){
+
+          throw new Error(
+            'Copy command failed'
+          );
+
+        }
+
+      }
+
+
+      button.textContent =
+        '✅ Copied!';
+
+
+    }
+
+    catch(error){
+
+      /*
+        Last fallback:
+        select the query visually so
+        user can manually copy it.
+      */
+
+      const textarea =
+        document.createElement(
+          'textarea'
+        );
+
+      textarea.value =
+        query;
+
+      textarea.style.position =
+        'fixed';
+
+      textarea.style.left =
+        '10px';
+
+      textarea.style.top =
+        '10px';
+
+      textarea.style.width =
+        'calc(100% - 20px)';
+
+      textarea.style.zIndex =
+        '9999';
+
+      document.body.appendChild(
+        textarea
+      );
+
+      textarea.focus();
+
+      textarea.select();
+
+      button.textContent =
+        '⚠️ Select & Copy';
+
+
+      setTimeout(
+        () => {
+
+          textarea.remove();
+
+          button.textContent =
+            '📋 Copy Query';
+
+        },
+        3000
+      );
+
+      return;
+
+    }
+
+
+    setTimeout(
+      () => {
+
+        button.textContent =
+          '📋 Copy Query';
+
+      },
+      1500
+    );
+
+  };
+
+
+/* =========================================================
+   ESCAPE HTML
+========================================================= */
+
+function escapeHTML(text){
+
+  return String(text)
+
+    .replace(
+      /&/g,
+      '&amp;'
+    )
+
+    .replace(
+      /</g,
+      '&lt;'
+    )
+
+    .replace(
+      />/g,
+      '&gt;'
+    )
+
+    .replace(
+      /"/g,
+      '&quot;'
+    )
+
+    .replace(
+      /'/g,
+      '&#039;'
+    );
+
+}
+
+
+/* =========================================================
+   RENDER RESULTS
+========================================================= */
+
+function renderResults(
+  words
+){
+
+  const results =
+    $('results');
+
+
+  results.innerHTML = '';
+
+
+  if(!words.length){
+
+    results.innerHTML = `
+
+      <div class="empty">
+
+        No local matches found.
+        Use the Gemini Search button above.
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  words.forEach(
+    word => {
+
+      const item =
+        document.createElement(
+          'div'
+        );
+
+
+      item.className =
+        'item';
+
+
+      const left =
+        document.createElement(
+          'div'
+        );
+
+
+      const wordElement =
+        document.createElement(
+          'span'
+        );
+
+
+      wordElement.className =
+        'word';
+
+
+      wordElement.textContent =
+        word.toUpperCase();
+
+
+      left.appendChild(
+        wordElement
+      );
+
+
+      item.appendChild(
+        left
+      );
+
+
+      results.appendChild(
+        item
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   ON-SCREEN KEYBOARD
+========================================================= */
+
+const keyboardRows = [
+
+  [
+    'q','w','e','r','t',
+    'y','u','i','o','p'
+  ],
+
+  [
+    'a','s','d','f','g',
+    'h','j','k','l'
+  ],
+
+  [
+    'Enter',
+    'z','x','c','v','b','n','m',
+    'Backspace'
+  ]
+
+];
+
+
+function getKeyboardStates(){
+
+  /*
+    Priority:
+    green > yellow > gray
+  */
+
+  const priority = {
+
+    '':0,
+
+    gray:1,
+
+    yellow:2,
+
+    green:3
+
+  };
+
+
+  const states = {};
+
+
+  board.forEach(
+    row => {
+
+      row.forEach(
+        tile => {
+
+          if(
+            !tile.ch ||
+            !tile.s
+          ){
+
+            return;
+
+          }
+
+
+          const letter =
+            tile.ch.toLowerCase();
+
+
+          if(
+            !states[letter] ||
+            priority[tile.s] >
+            priority[states[letter]]
+          ){
+
+            states[letter] =
+              tile.s;
+
+          }
+
+        }
+      );
+
+    }
+  );
+
+
+  return states;
+
+}
+
+
+function renderKeyboard(){
+
+  const keyboard =
+    $('keyboard');
+
+
+  if(!keyboard){
+
+    return;
+
+  }
+
+
+  keyboard.innerHTML = '';
+
+
+  const states =
+    getKeyboardStates();
+
+
+  keyboardRows.forEach(
+    row => {
+
+      const rowElement =
+        document.createElement(
+          'div'
+        );
+
+
+      rowElement.className =
+        'keyboard-row';
+
+
+      row.forEach(
+        key => {
+
+          const button =
+            document.createElement(
+              'button'
+            );
+
+
+          button.className =
+            'key';
+
+
+          if(
+            key === 'Enter' ||
+            key === 'Backspace'
+          ){
+
+            button.classList.add(
+              'special'
+            );
+
+          }
+
+
+          const state =
+            states[key];
+
+
+          if(state){
+
+            button.classList.add(
+              state
+            );
+
+          }
+
+
+          button.textContent =
+
+            key === 'Backspace'
+              ? '⌫'
+
+              : key === 'Enter'
+                ? '↵ Enter'
+
+                : key.toUpperCase();
+
+
+          button.onclick =
+            () => {
+
+              if(
+                key === 'Enter'
+              ){
+
+                nextRow();
+
+              }
+
+              else if(
+                key === 'Backspace'
+              ){
+
+                back();
+
+              }
+
+              else{
+
+                type(key);
+
+              }
+
+            };
+
+
+          rowElement.appendChild(
+            button
+          );
+
+        }
+      );
+
+
+      keyboard.appendChild(
+        rowElement
+      );
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   PHYSICAL KEYBOARD
+========================================================= */
+
+document.addEventListener(
+  'keydown',
+  event => {
+
+    /*
+      Do not interfere while typing
+      in normal inputs.
+    */
+
+    const tag =
+      document.activeElement?.tagName;
+
+
+    if(
+      tag === 'INPUT' ||
+      tag === 'TEXTAREA' ||
+      tag === 'SELECT'
+    ){
+
+      return;
+
+    }
+
+
+    const key =
+      event.key.toLowerCase();
+
+
+    /*
+      A-Z
+    */
+
+    if(
+      /^[a-z]$/.test(key)
+    ){
+
+      event.preventDefault();
+
+      type(key);
+
+      return;
+
+    }
+
+
+    /*
+      Backspace
+    */
+
+    if(
+      event.key === 'Backspace'
+    ){
+
+      event.preventDefault();
+
+      back();
+
+      return;
+
+    }
+
+
+    /*
+      Enter
+    */
+
+    if(
+      event.key === 'Enter'
+    ){
+
+      event.preventDefault();
+
+      nextRow();
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   DARK MODE
+========================================================= */
+
+$('dark').onclick =
+  () => {
+
+    document.body.classList.toggle(
+      'dark'
+    );
+
+
+    $('dark').textContent =
+
+      document.body.classList.contains(
+        'dark'
+      )
+
+      ? '☀️ Light mode'
+
+      : '🌙 Dark mode';
+
+  };
+
+
+/* =========================================================
+   LENGTH
+========================================================= */
+
+$('len').onchange =
+  () => {
+
+    createBoard();
+
+  };
+
+
+/* =========================================================
+   FILTER
+========================================================= */
+
+$('filter').onclick =
+  () => {
+
+    runFilter();
+
+    updateSearchInfo();
+
+  };
+
+
+$('theme').addEventListener(
+  'input',
+  () => {
+
+    runFilter();
+
+    updateSearchInfo();
+
+  }
+);
+
+
+/* =========================================================
+   BOARD BUTTONS
+========================================================= */
+
+$('clear').onclick =
+  () =>
+    clearCurrentRow();
+
+
+$('next').onclick =
+  () =>
+    nextRow();
+
+
+$('resetBoard').onclick =
+  () =>
+    createBoard();
+
+
+/* =========================================================
+   INITIALIZE
+========================================================= */
+
+createBoard();
+
+</script>
+
+</body>
+</html>
