@@ -2,5 +2,4 @@ User-agent: *
 Disallow: /private/
 Disallow: /admin/
 Allow: /public/
-Disallow: /sitemap.xml
 Sitemap: https://kavi2005-dotcom.github.io/BinanceWOTDSolver/sitemap.xml
