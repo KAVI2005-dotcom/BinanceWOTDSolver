@@ -458,10 +458,60 @@ body.dark button.copy{
 
   <div class="row">
 
-    <input
-      id="theme"
-      placeholder="Enter Weekly Theme"
-    >
+  <div class="theme-container">
+  <label for="theme">Choose or Enter Weekly Theme:</label>
+  <input 
+    type="text" 
+    id="theme" 
+    name="theme" 
+    list="weekly-themes" 
+    placeholder="Enter or select Weekly Theme"
+  >
+
+  <datalist id="weekly-themes">
+    <!-- Pilihan dari senarai -->
+    <option value="Keeps AI Agennts in Check"></option>
+  </datalist>
+</div>
+
+<style>
+  .theme-container {
+    font-family: Arial, sans-serif;
+    margin: 15px 0;
+  }
+
+  .theme-container label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+
+  .theme-container input {
+    width: 250px;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    outline: none;
+  }
+
+  .theme-container input:focus {
+    border-color: #007bff;
+  }
+</style>
+
+<script>
+  // Contoh untuk menambah tema baru dari backend secara dinamik
+  function addThemeFromBackend(newTheme) {
+    const datalist = document.getElementById('weekly-themes');
+    const option = document.createElement('option');
+    option.value = newTheme;
+    datalist.appendChild(option);
+  }
+
+  // Jika korang menerima data tema baru dari backend, panggil fungsi ini:
+  // addThemeFromBackend("DeFi Security");
+</script>
 
     <select id="len">
 
