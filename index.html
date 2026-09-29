@@ -4811,6 +4811,14 @@ function runFilter(){
       .toLowerCase()
       .trim();
 
+// Theme එක හිස් නම් සර්ච් වීම නවත්වන්න
+  if (theme === "") {
+    $('status').textContent = '⚠️ කරුණාකර Theme එක ඇතුළත් කරන්න.';
+    $('resultCount').textContent = '';
+    $('results').innerHTML = '<div class="empty">⚠️ "Please enter the theme and click Find Words again."</div>';
+    return;
+  }
+
 
   const terms =
     theme
