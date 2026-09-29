@@ -501,16 +501,12 @@ body.dark button.copy{
 </style>
 
 <script>
-  // Contoh untuk menambah tema baru dari backend secara dinamik
   function addThemeFromBackend(newTheme) {
     const datalist = document.getElementById('weekly-themes');
     const option = document.createElement('option');
     option.value = newTheme;
     datalist.appendChild(option);
   }
-
-  // Jika korang menerima data tema baru dari backend, panggil fungsi ini:
-  // addThemeFromBackend("DeFi Security");
 </script>
 
     <select id="len">
@@ -2460,8 +2456,6 @@ JEAN
 JEEP
 JEER
 JELL
-
-
 ALERT
 BLOCK
 CRYPTO
@@ -3216,8 +3210,6 @@ BOILED
 BOILER
 BOISIE
 BOKCHO
-
-
 ADOPTION
 AIRDROP
 ANALYST
@@ -4211,7 +4203,9 @@ function createBoard(){
 
   renderKeyboard();
 
-  runFilter();
+  // Reset cadangan perkataan apabila papan dicipta semula
+  renderResults([]);
+  $('resultCount').textContent = '';$('status').textContent = 'Press "Find Words" to calculate suggestions.';
 
   updateSearchInfo();
 
@@ -4347,8 +4341,6 @@ function cycleTile(row,col){
 
   renderKeyboard();
 
-  runFilter();
-
   updateSearchInfo();
 
 }
@@ -4400,8 +4392,6 @@ function type(ch){
 
   renderKeyboard();
 
-  runFilter();
-
   updateSearchInfo();
 
 }
@@ -4440,8 +4430,6 @@ function back(){
 
   renderKeyboard();
 
-  runFilter();
-
   updateSearchInfo();
 
 }
@@ -4468,8 +4456,6 @@ function clearCurrentRow(){
   render();
 
   renderKeyboard();
-
-  runFilter();
 
   updateSearchInfo();
 
@@ -5226,10 +5212,6 @@ $('copyQuery').onclick =
 
     try{
 
-      /*
-        Modern Clipboard API
-      */
-
       if(
         navigator.clipboard &&
         window.isSecureContext
@@ -5242,12 +5224,6 @@ $('copyQuery').onclick =
       }
 
       else{
-
-        /*
-          Fallback for local HTML files
-          and browsers where Clipboard API
-          is unavailable.
-        */
 
         const textarea =
           document.createElement(
@@ -5305,12 +5281,6 @@ $('copyQuery').onclick =
     }
 
     catch(error){
-
-      /*
-        Last fallback:
-        select the query visually so
-        user can manually copy it.
-      */
 
       const textarea =
         document.createElement(
@@ -5434,8 +5404,7 @@ function renderResults(
 
       <div class="empty">
 
-        No local matches found.
-        Use the Gemini Search button above.
+        Click "Find Words" to calculate local matches, or use AI Search above.
 
       </div>
 
@@ -5525,11 +5494,6 @@ const keyboardRows = [
 
 
 function getKeyboardStates(){
-
-  /*
-    Priority:
-    green > yellow > gray
-  */
 
   const priority = {
 
@@ -5726,11 +5690,6 @@ document.addEventListener(
   'keydown',
   event => {
 
-    /*
-      Do not interfere while typing
-      in normal inputs.
-    */
-
     const tag =
       document.activeElement?.tagName;
 
@@ -5750,10 +5709,6 @@ document.addEventListener(
       event.key.toLowerCase();
 
 
-    /*
-      A-Z
-    */
-
     if(
       /^[a-z]$/.test(key)
     ){
@@ -5767,10 +5722,6 @@ document.addEventListener(
     }
 
 
-    /*
-      Backspace
-    */
-
     if(
       event.key === 'Backspace'
     ){
@@ -5783,10 +5734,6 @@ document.addEventListener(
 
     }
 
-
-    /*
-      Enter
-    */
 
     if(
       event.key === 'Enter'
@@ -5840,7 +5787,7 @@ $('len').onchange =
 
 
 /* =========================================================
-   FILTER
+   FILTER & INPUT LISTENERS
 ========================================================= */
 
 $('filter').onclick =
@@ -5856,8 +5803,6 @@ $('filter').onclick =
 $('theme').addEventListener(
   'input',
   () => {
-
-    runFilter();
 
     updateSearchInfo();
 
