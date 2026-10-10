@@ -580,9 +580,26 @@ body.dark button.copy{
 </div>
 
   
- <div style="text-align: center;">
-  <img src="WhatsApp Image 2026-10-04 at 00.40.30.jpeg" alt="Trulli" width="500" height="333">
+<div class="img-container">
+    <img src="WhatsApp Image 2026-10-04 at 00.40.30.jpeg" alt="Trulli">
 </div>
+
+<style>
+.img-container {
+    width: 100%;
+    max-width: 500px; /* උපරිම පළල px 500 කට සීමා කරයි */
+    margin: 0 auto;  /* මැදට (center) සකසයි */
+    text-align: center;
+}
+
+.img-container img {
+    width: 100%;     /* මොබයිල් තිර වලදී ස්වයංක්‍රීයව කුඩා වෙයි */
+    max-width: 100%;
+    height: auto;    /* රූපයේ අනුපාතය (aspect ratio) ආරක්ෂා කරයි */
+    display: block;
+}
+</style>
+
 
 
 <div class="ad-container">
