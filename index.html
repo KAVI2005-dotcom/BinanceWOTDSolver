@@ -587,15 +587,15 @@ body.dark button.copy{
 <style>
 .img-container {
     width: 100%;
-    max-width: 500px; /* උපරිම පළල px 500 කට සීමා කරයි */
-    margin: 0 auto;  /* මැදට (center) සකසයි */
+    max-width: 500px;
+    margin: 0 auto;
     text-align: center;
 }
 
 .img-container img {
-    width: 100%;     /* මොබයිල් තිර වලදී ස්වයංක්‍රීයව කුඩා වෙයි */
+    width: 100%;
     max-width: 100%;
-    height: auto;    /* රූපයේ අනුපාතය (aspect ratio) ආරක්ෂා කරයි */
+    height: auto;
     display: block;
 }
 </style>
@@ -3493,7 +3493,7 @@ EXPONENS
 RSIINDIC
 MACDINDS
 BOLLINGR
-FIBONACC
+FIBONACCI
 SUPPORTS
 RESISTAN
 TRENDLIN
@@ -6111,55 +6111,35 @@ $('len').onchange =
 
 
 /* =========================================================
-   FILTER / FIND WORDS
+   FILTER / FIND WORDS (UPDATED WITH LOCALSTORAGE & RELOAD)
 ========================================================= */
 
 $('filter').onclick = () => {
 
-   // 1. නව ටැබ් එකකින් දැන්වීමේ ලින්ක් එක විවෘත කිරීම
-    window.open('https://www.profitableratecpmnetwork.com/cz11tsfyxw?key=cdcdcab71e5431eba340243c0d8ca266', '_blank');
- 
-   
-
-    const theme =
-      $('theme')
-        .value
-        .trim();
-
-
-    /*
-      NEW THEME VALIDATION
-    */
+    const theme = $('theme').value.trim();
 
     if(!theme){
-
       searchStarted = false;
-
       clearResults();
-
-      $('resultCount').textContent = '';
-
-      $('status').textContent =
-        'Please select a theme first.';
-
+      $('resultCount').textContent = '';$('status').textContent = 'Please select a theme first.';
       updateSearchInfo();
-
       return;
-
     }
 
+    // දත්තයන් LocalStorage එකේ සුරැකීම
+    localStorage.setItem('wotd_theme', theme);
+    localStorage.setItem('wotd_len', $('len').value);
+    localStorage.setItem('wotd_board', JSON.stringify(board));
+    localStorage.setItem('wotd_current', current);
+    localStorage.setItem('wotd_searchStarted', 'true');
 
-    /*
-      Theme exists:
-      allow suggested words to appear.
-    */
-
-    searchStarted = true;
-
-    runFilter();
-
-    updateSearchInfo();
-
+    // නව ටැබ් එකකින් දැන්වීමේ ලින්ක් එක විවෘත කිරීම
+    window.open('https://www.profitableratecpmnetwork.com/cz11tsfyxw?key=cdcdcab71e5431eba340243c0d8ca266', '_blank');
+ 
+    // පිටුව ස්වයංක්‍රීයව Reload වීම
+    setTimeout(() => {
+      location.reload();
+    }, 500);
   };
 
 
@@ -6170,14 +6150,6 @@ $('filter').onclick = () => {
 $('theme').addEventListener(
   'input',
   () => {
-
-    /*
-      IMPORTANT:
-      Typing/changing a theme does NOT
-      automatically show suggested words.
-
-      User must click Find Words.
-    */
 
     searchStarted = false;
 
@@ -6211,7 +6183,7 @@ $('resetBoard').onclick =
   () => {
 
     searchStarted = false;
-
+    localStorage.clear();
     createBoard();
 
     $('status').textContent = '';
@@ -6220,10 +6192,37 @@ $('resetBoard').onclick =
 
 
 /* =========================================================
-   INITIALIZE
+   INITIALIZE (WITH LOCALSTORAGE RESTORE)
 ========================================================= */
 
-createBoard();
+function initApp() {
+  const savedSearchStarted = localStorage.getItem('wotd_searchStarted');
+  
+  if (savedSearchStarted === 'true') {
+    searchStarted = true;
+    const savedTheme = localStorage.getItem('wotd_theme');
+    const savedLen = localStorage.getItem('wotd_len');
+    const savedBoard = localStorage.getItem('wotd_board');
+    const savedCurrent = localStorage.getItem('wotd_current');
+
+    if (savedTheme) $('theme').value = savedTheme;
+    if (savedLen) $('len').value = savedLen;
+    if (savedBoard) board = JSON.parse(savedBoard);
+    if (savedCurrent) current = Number(savedCurrent);
+    if (savedLen) L = Number(savedLen);
+
+    render();
+    renderKeyboard();
+    runFilter();
+    updateSearchInfo();
+    
+    // අවශ්‍ය නම් පසුව LocalStorage clear කරගන්න පුළුවන් (නමුත් මේකෙන් තොරතුරු රඳවා තබා ගනී)
+  } else {
+    createBoard();
+  }
+}
+
+initApp();
 
 </script>
 
