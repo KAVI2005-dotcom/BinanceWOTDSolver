@@ -142,7 +142,12 @@ button.secondary{
   gap:7px;
   justify-content:center;
   margin:15px auto;
+  max-width: 100%;
 }
+
+/* =========================================================
+   RESPONSIVE CLUE GRID TILE SIZING
+========================================================= */
 
 .tile{
   width: 100%;
@@ -160,9 +165,6 @@ button.secondary{
   transition:.12s;
   user-select:none;
 }
-
-
-
 
 .tile:hover{
   transform:scale(1.03);
@@ -355,12 +357,6 @@ body.dark button.copy{
 
   h1{
     font-size:23px;
-  }
-
-  .tile{
-    width:43px;
-    height:43px;
-    font-size:19px;
   }
 
   .grid{
@@ -4427,7 +4423,7 @@ function render(){
 
 
   grid.style.gridTemplateColumns =
-    `repeat(${L},54px)`;
+    `repeat(${L}, minmax(30px, 54px))`;
 
 
   grid.innerHTML = '';
@@ -6224,7 +6220,6 @@ function initApp() {
     runFilter();
     updateSearchInfo();
     
-    // අවශ්‍ය නම් පසුව LocalStorage clear කරගන්න පුළුවන් (නමුත් මේකෙන් තොරතුරු රඳවා තබා ගනී)
   } else {
     createBoard();
   }
